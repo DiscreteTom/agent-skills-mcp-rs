@@ -24,7 +24,12 @@ struct Args {
     )]
     skill_folder: String,
 
-    #[arg(long, env = "MODE", default_value = "tool", help = "Operating mode")]
+    #[arg(
+        long,
+        env = "MODE",
+        default_value = "single_tool",
+        help = "Operating mode"
+    )]
     mode: Mode,
 }
 

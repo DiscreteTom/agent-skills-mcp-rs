@@ -85,7 +85,7 @@ impl McpServer {
     fn handle_initialize(&self, id: Option<Value>) -> Response {
         let instructions = match self.mode {
             Mode::SystemPrompt => self.build_system_prompt_instructions(),
-            Mode::Tool => String::new(),
+            _ => String::new(),
         };
 
         Response {
@@ -105,39 +105,64 @@ impl McpServer {
     }
 
     fn handle_tools_list(&self, id: Option<Value>) -> Response {
-        if matches!(self.mode, Mode::Tool) {
-            let tools: Vec<Value> = self
-                .skills
-                .iter()
-                .map(|skill| {
-                    json!({
-                        "name": format!("get_skill_{}", skill.name),
-                        "description": format!(
-                            "Returns the content of the skill file at: {}/{}\n\n## Skill Description\n{}",
-                            self.skill_folder, skill.relative_path.display(), skill.description
-                        ),
-                        "inputSchema": {
-                            "type": "object",
-                            "properties": {},
-                            "required": []
-                        }
+        match self.mode {
+            Mode::Tool => {
+                let tools: Vec<Value> = self
+                    .skills
+                    .iter()
+                    .map(|skill| {
+                        json!({
+                            "name": format!("get_skill_{}", skill.name),
+                            "description": format!(
+                                "Returns the content of the skill file at: {}/{}\n\n## Skill Description\n{}",
+                                self.skill_folder, skill.relative_path.display(), skill.description
+                            ),
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {},
+                                "required": []
+                            }
+                        })
                     })
-                })
-                .collect();
+                    .collect();
 
-            Response {
-                jsonrpc: "2.0".to_string(),
-                id,
-                result: Some(json!({ "tools": tools })),
-                error: None,
+                Response {
+                    jsonrpc: "2.0".to_string(),
+                    id,
+                    result: Some(json!({ "tools": tools })),
+                    error: None,
+                }
             }
-        } else {
-            Response {
+            Mode::SingleTool => {
+                let description = self.build_single_tool_description();
+                let tools = vec![json!({
+                    "name": "get_skill",
+                    "description": description,
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the skill to retrieve"
+                            }
+                        },
+                        "required": ["name"]
+                    }
+                })];
+
+                Response {
+                    jsonrpc: "2.0".to_string(),
+                    id,
+                    result: Some(json!({ "tools": tools })),
+                    error: None,
+                }
+            }
+            Mode::SystemPrompt => Response {
                 jsonrpc: "2.0".to_string(),
                 id,
                 result: Some(json!({ "tools": [] })),
                 error: None,
-            }
+            },
         }
     }
 
@@ -149,7 +174,30 @@ impl McpServer {
             .and_then(|n| n.as_str());
 
         if let Some(name) = name {
-            if let Some(skill_name) = name.strip_prefix("get_skill_") {
+            if name == "get_skill" && matches!(self.mode, Mode::SingleTool) {
+                let skill_name = req
+                    .params
+                    .as_ref()
+                    .and_then(|p| p.get("arguments"))
+                    .and_then(|a| a.get("name"))
+                    .and_then(|n| n.as_str());
+
+                if let Some(skill_name) = skill_name {
+                    if let Some(skill) = self.skills.iter().find(|s| s.name == skill_name) {
+                        return Response {
+                            jsonrpc: "2.0".to_string(),
+                            id: req.id,
+                            result: Some(json!({
+                                "content": [{
+                                    "type": "text",
+                                    "text": skill.content
+                                }]
+                            })),
+                            error: None,
+                        };
+                    }
+                }
+            } else if let Some(skill_name) = name.strip_prefix("get_skill_") {
                 if let Some(skill) = self.skills.iter().find(|s| s.name == skill_name) {
                     return Response {
                         jsonrpc: "2.0".to_string(),
@@ -196,5 +244,24 @@ impl McpServer {
         }
 
         instructions
+    }
+
+    fn build_single_tool_description(&self) -> String {
+        let mut description = String::from(
+            "Get the content of a skill by name.\n\n\
+            Available skills:\n\n",
+        );
+
+        for skill in &self.skills {
+            description.push_str(&format!(
+                "## {}\n\n> Path: {}/{}\n\n{}\n\n",
+                skill.name,
+                self.skill_folder,
+                skill.relative_path.display(),
+                skill.description
+            ));
+        }
+
+        description
     }
 }

@@ -56,8 +56,9 @@ Then, add this to your MCP client configuration:
 
 ### Modes
 
-- `system_prompt`: Include skill information in MCP instructions (recommended if your agent regards MCP server instructions)
-- `tool`: Register skills as MCP tools (fallback mode since many agents ignore MCP server instructions)
+- `single_tool` (default): Register a single `get_skill` tool that accepts a skill name parameter, with all skills listed in the tool description. This reduces the number of tools exposed to the agent.
+- `tool`: Register each skill as a separate MCP tool (e.g., `get_skill_name1`, `get_skill_name2`)
+- `system_prompt`: Include skill information in MCP instructions
 
 ## Install Standalone Binary
 

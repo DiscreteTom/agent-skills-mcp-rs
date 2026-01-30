@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New `single_tool` mode that provides a single `get_skill` tool accepting a skill name parameter, with all skills listed in the tool description
+
+### Changed
+- Default mode changed from `tool` to `single_tool` to reduce the number of generated tools
+
 ## [0.1.0] - 2026-01-30
 
 ### Added

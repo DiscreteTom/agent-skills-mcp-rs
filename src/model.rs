@@ -15,6 +15,7 @@ pub struct SkillData {
 pub enum Mode {
     Tool,
     SystemPrompt,
+    SingleTool,
 }
 
 impl FromStr for Mode {
@@ -24,8 +25,9 @@ impl FromStr for Mode {
         match s.to_lowercase().as_str() {
             "tool" => Ok(Mode::Tool),
             "system_prompt" => Ok(Mode::SystemPrompt),
+            "single_tool" => Ok(Mode::SingleTool),
             _ => Err(format!(
-                "Invalid mode: {}. Must be 'tool' or 'system_prompt'",
+                "Invalid mode: {}. Must be 'tool', 'system_prompt', or 'single_tool'",
                 s
             )),
         }
