@@ -1,0 +1,22 @@
+[package]
+name = "agent-skills-mcp"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/DiscreteTom/agent-skills-mcp-rs"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive", "env"] }
+walkdir = "2"
+anyhow = "1"
+gray_matter = "0.2"
+shellexpand = "3"
+
+[target.'cfg(target_env = "musl")'.dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
+
+[profile.dist]
+inherits = "release"
+lto = "thin"
