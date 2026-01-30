@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-01-30
+
 ### Added
 - New `single_tool` mode that provides a single `get_skill` tool accepting a skill name parameter, with all skills listed in the tool description
 - Support for MCP `ping` method
@@ -28,5 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI with environment variable support (SKILL_FOLDER, MODE)
 - Identical functionality to Python version
 
-[unreleased]: https://github.com/DiscreteTom/agent-skills-mcp-rs/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/DiscreteTom/agent-skills-mcp-rs/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/DiscreteTom/agent-skills-mcp-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/DiscreteTom/agent-skills-mcp-rs/releases/tag/v0.1.0
