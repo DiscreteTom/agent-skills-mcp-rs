@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Default mode changed from `tool` to `single_tool` to reduce the number of generated tools
 
+### Fixed
+- MCP initialize response now uses actual version from Cargo.toml instead of hardcoded version
+
 ## [0.1.0] - 2026-01-30
 
 ### Added

@@ -5,6 +5,8 @@ use serde_json::{json, Value};
 use std::path::Path;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[derive(Deserialize)]
 struct Request {
     #[serde(default)]
@@ -96,7 +98,7 @@ impl McpServer {
                 "capabilities": { "tools": {} },
                 "serverInfo": {
                     "name": "agent-skills-mcp",
-                    "version": "0.1.0"
+                    "version": VERSION
                 },
                 "instructions": instructions
             })),
