@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - New `single_tool` mode that provides a single `get_skill` tool accepting a skill name parameter, with all skills listed in the tool description
+- Support for MCP `ping` method
 
 ### Changed
 - Default mode changed from `tool` to `single_tool` to reduce the number of generated tools

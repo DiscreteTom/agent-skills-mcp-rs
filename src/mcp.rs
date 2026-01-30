@@ -70,6 +70,12 @@ impl McpServer {
         match req.method.as_str() {
             "initialize" => Some(self.handle_initialize(req.id)),
             "notifications/initialized" => None,
+            "ping" => Some(Response {
+                jsonrpc: "2.0".to_string(),
+                id: req.id,
+                result: Some(json!({})),
+                error: None,
+            }),
             "tools/list" => Some(self.handle_tools_list(req.id)),
             "tools/call" => Some(self.handle_tools_call(req)),
             _ => Some(Response {
