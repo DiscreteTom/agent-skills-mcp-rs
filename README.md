@@ -17,8 +17,8 @@ Agent Skills MCP - Load Agent Skills for your agents
 Usage: agent-skills-mcp [OPTIONS]
 
 Options:
-      --skill-folder <SKILL_FOLDER>  Path to folder containing skill markdown files [env: SKILL_FOLDER=] [default: skills]
-      --mode <MODE>                  Operating mode [env: MODE=] [default: tool]
+      --skill-folder <SKILL_FOLDER>  Path(s) to folder(s) containing skill markdown files (repeat or comma-separate) [env: SKILL_FOLDER=] [default: skills]
+      --mode <MODE>                  Operating mode [env: MODE=] [default: single_tool]
   -h, --help                         Print help
   -V, --version                      Print version
 ```
@@ -48,6 +48,24 @@ Then, add this to your MCP client configuration:
       "args": ["-y", "agent-skills-mcp"],
       "env": {
         "SKILL_FOLDER": "~/skills"
+      }
+    }
+  }
+}
+```
+
+### Multiple Skill Folders
+
+You can load skills from multiple folders by repeating the `--skill-folder` flag or using a comma-separated list in the `SKILL_FOLDER` env var. A common pattern is to keep global skills in `~/skills` and workspace-specific skills in `./skills`:
+
+```json
+{
+  "mcpServers": {
+    "skills": {
+      "command": "npx",
+      "args": ["-y", "agent-skills-mcp"],
+      "env": {
+        "SKILL_FOLDER": "~/skills,./skills"
       }
     }
   }

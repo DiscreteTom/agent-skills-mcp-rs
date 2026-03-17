@@ -3,7 +3,7 @@ use anyhow::Result;
 use std::path::Path;
 use walkdir::WalkDir;
 
-fn parse_markdown_file(md_file: &Path, folder: &Path, content: &str) -> Result<SkillData> {
+fn parse_markdown_file(md_file: &Path, content: &str) -> Result<SkillData> {
     let parsed = gray_matter::Matter::<gray_matter::engine::YAML>::new().parse(content);
 
     let default_name = md_file.file_stem().unwrap().to_str().unwrap().to_string();
@@ -27,13 +27,11 @@ fn parse_markdown_file(md_file: &Path, folder: &Path, content: &str) -> Result<S
         (default_name, String::new())
     };
 
-    let relative_path = md_file.strip_prefix(folder)?.to_path_buf();
-
     Ok(SkillData {
         name,
         description,
         content: parsed.content,
-        relative_path,
+        absolute_path: md_file.to_path_buf(),
     })
 }
 
@@ -59,7 +57,7 @@ pub fn scan_skills(folder: &Path) -> Result<Vec<SkillData>> {
 
         if entry.file_type().is_file() && entry.file_name() == "SKILL.md" {
             match std::fs::read_to_string(entry.path()) {
-                Ok(content) => match parse_markdown_file(entry.path(), folder, &content) {
+                Ok(content) => match parse_markdown_file(entry.path(), &content) {
                     Ok(skill) => skills.push(skill),
                     Err(e) => {
                         eprintln!("Warning: failed to parse {}: {}", entry.path().display(), e)

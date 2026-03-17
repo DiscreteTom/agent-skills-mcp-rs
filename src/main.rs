@@ -19,10 +19,11 @@ struct Args {
     #[arg(
         long,
         env = "SKILL_FOLDER",
+        value_delimiter = ',',
         default_value = "skills",
-        help = "Path to folder containing skill markdown files"
+        help = "Path(s) to folder(s) containing skill markdown files (repeat or comma-separate)"
     )]
-    skill_folder: String,
+    skill_folder: Vec<String>,
 
     #[arg(
         long,
@@ -33,23 +34,32 @@ struct Args {
     mode: Mode,
 }
 
+fn resolve_folder(raw: &str) -> PathBuf {
+    let expanded = shellexpand::tilde(raw);
+    let path = PathBuf::from(expanded.as_ref());
+    let path = if path.is_absolute() {
+        path
+    } else {
+        std::env::current_dir()
+            .expect("failed to get current dir")
+            .join(path)
+    };
+    path.canonicalize().unwrap_or(path)
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    let expanded = shellexpand::tilde(&args.skill_folder);
-    let skill_folder_path = PathBuf::from(expanded.as_ref());
-    let skill_folder_path = if skill_folder_path.is_absolute() {
-        skill_folder_path
-    } else {
-        std::env::current_dir()?.join(skill_folder_path)
-    };
+    let skills: Vec<_> = args
+        .skill_folder
+        .iter()
+        .flat_map(|raw| {
+            let path = resolve_folder(raw);
+            scan::scan_skills(&path).unwrap_or_default()
+        })
+        .collect();
 
-    let skill_folder_path = skill_folder_path
-        .canonicalize()
-        .unwrap_or(skill_folder_path);
-
-    let skills = scan::scan_skills(&skill_folder_path)?;
-    let server = mcp::McpServer::new(args.mode, skills, &skill_folder_path);
+    let server = mcp::McpServer::new(args.mode, skills);
     server.run().await
 }

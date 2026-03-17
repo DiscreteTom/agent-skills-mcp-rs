@@ -2,7 +2,6 @@ use crate::model::{Mode, SkillData};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::path::Path;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -34,16 +33,11 @@ struct ErrorObject {
 pub struct McpServer {
     mode: Mode,
     skills: Vec<SkillData>,
-    skill_folder: String,
 }
 
 impl McpServer {
-    pub fn new(mode: Mode, skills: Vec<SkillData>, skill_folder: &Path) -> Self {
-        Self {
-            mode,
-            skills,
-            skill_folder: skill_folder.display().to_string(),
-        }
+    pub fn new(mode: Mode, skills: Vec<SkillData>) -> Self {
+        Self { mode, skills }
     }
 
     pub async fn run(&self) -> Result<()> {
@@ -122,8 +116,8 @@ impl McpServer {
                         json!({
                             "name": format!("get_skill_{}", skill.name),
                             "description": format!(
-                                "Returns the content of the skill file at: {}/{}\n\n## Skill Description\n{}",
-                                self.skill_folder, skill.relative_path.display(), skill.description
+                                "Returns the content of the skill file at: {}\n\n## Skill Description\n{}",
+                                skill.absolute_path.display(), skill.description
                             ),
                             "inputSchema": {
                                 "type": "object",
@@ -243,10 +237,9 @@ impl McpServer {
 
         for skill in &self.skills {
             instructions.push_str(&format!(
-                "\n## {}\n\n> Path: {}/{}\n\n{}\n\n",
+                "\n## {}\n\n> Path: {}\n\n{}\n\n",
                 skill.name,
-                self.skill_folder,
-                skill.relative_path.display(),
+                skill.absolute_path.display(),
                 skill.description
             ));
         }
@@ -262,10 +255,9 @@ impl McpServer {
 
         for skill in &self.skills {
             description.push_str(&format!(
-                "## {}\n\n> Path: {}/{}\n\n{}\n\n",
+                "## {}\n\n> Path: {}\n\n{}\n\n",
                 skill.name,
-                self.skill_folder,
-                skill.relative_path.display(),
+                skill.absolute_path.display(),
                 skill.description
             ));
         }

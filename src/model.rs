@@ -7,7 +7,7 @@ pub struct SkillData {
     pub name: String,
     pub description: String,
     pub content: String,
-    pub relative_path: PathBuf,
+    pub absolute_path: PathBuf,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
